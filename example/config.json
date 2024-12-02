@@ -1,0 +1,5 @@
+{
+	"model_name":"timbrooks/instruct-pix2pix",
+	"image_path":"https://raw.githubusercontent.com/timothybrooks/instruct-pix2pix/main/imgs/example.jpg",
+	"prompt":"turn him into cyborg"
+}
