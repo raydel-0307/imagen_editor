@@ -49,7 +49,8 @@ def MainModel(dir_path,prompt,image_path,model_name):
 
 	init_time = time.perf_counter()
 	
-	download_model(model_name, "model.pkl", dir_path,dir_path)
+	print("Descargando Modelo")
+	download_model(model_name, "model.pkl", dir_path,timeout=3000)
 
 	with open(f"{dir_path}/model.pkl", 'rb') as f:
 		pipe = pickle.load(f)
