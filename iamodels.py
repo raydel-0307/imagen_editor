@@ -3,7 +3,7 @@ import torch
 from diffusers import StableDiffusionInstructPix2PixPipeline, EulerAncestralDiscreteScheduler
 import pickle
 from random import randint
-from minio_db import MinioManager
+from minio_db import *
 from metrics import get_time
 import time
 import requests
@@ -35,8 +35,7 @@ def TrainModel(dir_path,model_name):
 	with open(model_path, 'wb') as f:
 		pickle.dump(pipe, f)
 
-	minio_manager = MinioManager()
-	minio_manager.upload_model(model_name, model_path)
+	upload_model(model_name,model_path)
 
 	os.unlink(model_path)
 
@@ -49,7 +48,7 @@ def MainModel(dir_path,prompt,image_path,model_name):
 
 	init_time = time.perf_counter()
 	
-	minio_manager = MinioManager()
+	pipe = download_model(model_name, model_name)
 	pipe = minio_manager.download_model(model_name)
 
 	image = make_image(image_path)

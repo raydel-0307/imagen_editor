@@ -1,47 +1,45 @@
-# minio_model_stress_test.py
-from minio import Minio
-import io
+import os
+import requests
+import pickle
+from requests.exceptions import RequestException
 
-class MinioManager:
-    _instance = None
+def download_model(input_model_name, output_model_name, dir_path=None, timeout=30):
+    url = 'http://192.168.1.29:8000/api/spark/download_pkl_from_minio/'
+    try:
+        response = requests.post(url,data={'model_name': input_model_name},timeout=timeout)
+        if response.status_code == 200:
+            file_name = output_model_name
+            if dir_path:file_name = f"{dir_path}/{output_model_name}"
+            with open(file_name, 'wb') as file:
+                file.write(response.content)
+            print(f"File downloaded and saved successfully as '{file_name}'")
+            return response.content
+        else:
+            print(f"Error: {response.status_code}")
+            print(response.json())
+    except RequestException as e:
+        print(f"Request failed: {str(e)}")
+    except Exception as e:
+        print(f"Error: {str(e)}")
 
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super(MinioManager, cls).__new__(cls)
-            cls._instance._initialized = False
-            cls._instance.MINIO_ENDPOINT = "192.168.1.36:9000"
-            cls._instance.MINIO_ACCESS_KEY = "minioadmin"
-            cls._instance.MINIO_SECRET_KEY = "minioadmin"
-            cls._instance.BUCKET_NAME = "models"
-            
-            cls._instance.client = Minio(
-                cls._instance.MINIO_ENDPOINT,
-                access_key=cls._instance.MINIO_ACCESS_KEY,
-                secret_key=cls._instance.MINIO_SECRET_KEY,
-                secure=False
-            )
-            cls._instance._initialized = True
-        return cls._instance
+def upload_model(model_name,model_path,timeout=30):
+    if not model_path:
+        print("No se ingresó ninguna ruta de archivo.")
+        exit()
+    with open(model_path, 'rb') as file:
+        file_data = file.read()
+    url = 'http://192.168.1.29:8000/api/spark/upload_pkl_to_minio/'  
+    try:
+        files = {'file': (model_path, file_data, 'application/octet-stream')}
+        response = requests.post(url,files=files,data={'object_name': model_name},timeout=timeout)
+        if response.status_code == 200:
+            print("Archivo subido exitosamente")
+            print(response.json())
+        else:
+            print(f"Error: {response.status_code}")
+            print(response.json())
 
-    def __init__(self):
-        pass
-
-    def upload_model(self, model_name, model_serialized):
-        """Sube un modelo a MinIO."""
-        model_data = io.BytesIO(model_serialized)
-        model_size = len(model_serialized)
-        self.client.put_object(
-            self.BUCKET_NAME, 
-            model_name, 
-            model_data, 
-            model_size
-        )
-
-    def download_model(self, model_name):
-        """Descarga un modelo de MinIO."""
-        response = self.client.get_object(self.BUCKET_NAME, model_name)
-        model_serialized = response.read()
-        response.close()
-        response.release_conn()
-        return model_serialized
-
+    except RequestException as e:
+        print(f"Fallo en la solicitud: {str(e)}")
+    except Exception as e:
+        print(f"Error: {str(e)}")
