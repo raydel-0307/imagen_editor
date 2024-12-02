@@ -35,7 +35,8 @@ def TrainModel(dir_path,model_name):
 	with open(model_path, 'wb') as f:
 		pickle.dump(pipe, f)
 
-	upload_model(model_name,model_path)
+	print("Subiendo modelo")
+	upload_model(model_name,model_path,timeout=3000)
 
 	os.unlink(model_path)
 
