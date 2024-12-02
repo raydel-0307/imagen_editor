@@ -49,8 +49,12 @@ def MainModel(dir_path,prompt,image_path,model_name):
 
 	init_time = time.perf_counter()
 	
-	pipe = download_model(model_name, model_name)
-	pipe = minio_manager.download_model(model_name)
+	download_model(model_name, "model.pkl", dir_path,dir_path)
+
+	with open(f"{dir_path}/model.pkl", 'rb') as f:
+		pipe = pickle.load(f)
+
+	os.unlink(f"{dir_path}/model.pkl")
 
 	image = make_image(image_path)
 	

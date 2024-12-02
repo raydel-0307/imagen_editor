@@ -13,7 +13,6 @@ def download_model(input_model_name, output_model_name, dir_path=None, timeout=3
             with open(file_name, 'wb') as file:
                 file.write(response.content)
             print(f"File downloaded and saved successfully as '{file_name}'")
-            return response.content
         else:
             print(f"Error: {response.status_code}")
             print(response.json())
