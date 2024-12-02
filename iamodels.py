@@ -49,13 +49,12 @@ def MainModel(dir_path,prompt,image_path,model_name):
 
 	init_time = time.perf_counter()
 	
-	print("Descargando Modelo")
-	download_model(model_name, "model.pkl", dir_path,timeout=3000)
+	if not os.path.exists(f"{dir_path}/model.pkl"):
+		print("Descargue el modelo primeramente: 'python3 download_model.py'")
+		return
 
 	with open(f"{dir_path}/model.pkl", 'rb') as f:
 		pipe = pickle.load(f)
-
-	os.unlink(f"{dir_path}/model.pkl")
 
 	image = make_image(image_path)
 	
