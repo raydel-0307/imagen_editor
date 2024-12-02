@@ -12,7 +12,7 @@ import os
 def make_image(image_path):
 
 	if "https://" or image_path or "http://" in image_path:
-		image = PIL.Image.open(requests.get(url, stream=True).raw)
+		image = PIL.Image.open(requests.get(image_path, stream=True).raw)
 	else:
 		image = PIL.Image.open(image_path)
 
